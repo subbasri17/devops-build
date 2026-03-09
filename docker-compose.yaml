@@ -1,7 +1,7 @@
 version: "3"
 
 services:
-  reactapp:
+  webapp:
     image: ${IMAGE}
     ports:
       - "80:80"
