@@ -9,7 +9,7 @@ pipeline {
         DEV_REGISTRY = "aarushisuba/dev"
         PROD_REGISTRY = "aarushisuba/prod"
         IMAGE_NAME = "webapp"
-        IMAGE_TAG = "${BUILD_NUMBER}"
+        IMAGE_TAG = "latest"
     }
 
     stages {
