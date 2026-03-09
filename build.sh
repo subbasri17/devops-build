@@ -1,9 +1,7 @@
 #!/bin/bash
 set -e
 
-# Usage: ./build.sh <branch_name>
 BRANCH=${1:-dev}   # default to dev
-
 IMAGE_NAME="webapp"
 DOCKER_USER=${DOCKER_USER:-aarushisuba}
 
@@ -13,7 +11,13 @@ PROD_IMAGE="$DOCKER_USER/prod:$BRANCH"
 echo "Building Docker image..."
 docker build -t "$IMAGE_NAME:latest" .
 
-echo "Docker login..."
+# Check if Docker credentials exist
+if [ -z "$DOCKER_USER" ] || [ -z "$DOCKER_PASS" ]; then
+    echo "Error: DOCKER_USER or DOCKER_PASS is not set!"
+    exit 1
+fi
+
+echo "Logging in to DockerHub..."
 echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
 
 if [ "$BRANCH" == "dev" ]; then
