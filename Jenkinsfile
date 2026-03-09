@@ -57,6 +57,15 @@ pipeline {
 
         stage('Deploy') {
             steps {
+           
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub-credentials',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+
+                    sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+                
                 sh 'chmod +x deploy.sh'
                 sh "./deploy.sh ${params.BRANCH_NAME}"
             }
