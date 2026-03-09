@@ -1,7 +1,8 @@
-version: "3"
+version: '3'
 
 services:
   webapp:
-    image: webapp
+    image: ${IMAGE}
+    container_name: webapp
     ports:
       - "80:80"
