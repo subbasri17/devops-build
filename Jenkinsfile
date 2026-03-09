@@ -1,12 +1,14 @@
 pipeline {
     agent any
-
-    environment {
+   
+   environment {
+        DEV_REGISTRY = "aarushisuba/dev"
+        PROD_REGISTRY = "aarushisuba/prod"
         IMAGE_NAME = "webapp"
+        IMAGE_TAG = "latest"
     }
 
     stages {
-
         stage('Checkout') {
             steps {
                 git url: 'https://github.com/subbasri17/devops-build.git',
@@ -14,16 +16,32 @@ pipeline {
             }
         }
 
-        stage('Build & Push Docker Image') {
+        stage('Build Docker Image') {
+            steps {
+                sh 'chmod +x build.sh'
+                sh './build.sh'
+            }
+        }
+
+        stage('Push to DockerHub') {
             steps {
                 script {
                     withCredentials([usernamePassword(
-                        credentialsId: 'dockerhub-creds',
+                        credentialsId: 'dockerhub-credentials',
                         usernameVariable: 'DOCKER_USER',
                         passwordVariable: 'DOCKER_PASS'
                     )]) {
-                        sh 'chmod +x build.sh'
-                        sh "./build.sh ${BRANCH_NAME}"
+                        sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
+
+                        if (env.BRANCH_NAME == 'dev') {
+                            sh "docker tag webapp:latest $DEV_REGISTRY:$IMAGE_TAG"
+                            sh "docker push $DEV_REGISTRY:$IMAGE_TAG"
+                        } else if (env.BRANCH_NAME == 'master') {
+                            sh "docker tag webapp:latest $PROD_REGISTRY:$IMAGE_TAG"
+                            sh "docker push $PROD_REGISTRY:$IMAGE_TAG"
+                        } else {
+                            echo "Branch is neither dev nor master. Skipping Docker push."
+                        }
                     }
                 }
             }
@@ -32,7 +50,7 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh 'chmod +x deploy.sh'
-                sh "./deploy.sh ${BRANCH_NAME}"
+                sh './deploy.sh'
             }
         }
     }
