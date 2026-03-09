@@ -16,10 +16,10 @@ docker compose down || true
 # Select image based on branch
 if [ "$BRANCH" == "dev" ]; then
     IMAGE=$DEV_IMAGE
-elif [ "$BRANCH" == "master" ]; then
+elif [ "$BRANCH" == "main" ]; then
     IMAGE=$PROD_IMAGE
 else
-    echo "Invalid branch. Use dev or master"
+    echo "Invalid branch. Use dev or main"
     exit 1
 fi
 
