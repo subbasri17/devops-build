@@ -1,7 +1,12 @@
 pipeline {
     agent any
-   
-   environment {
+
+    // Add a parameter for branch selection
+    parameters {
+        string(name: 'BRANCH_NAME', defaultValue: 'dev', description: 'Branch to build and deploy')
+    }
+
+    environment {
         DEV_REGISTRY = "aarushisuba/dev"
         PROD_REGISTRY = "aarushisuba/prod"
         IMAGE_NAME = "webapp"
@@ -12,14 +17,14 @@ pipeline {
         stage('Checkout') {
             steps {
                 git url: 'https://github.com/subbasri17/devops-build.git',
-                    branch: "${BRANCH_NAME}"
+                    branch: "${params.BRANCH_NAME}"
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 sh 'chmod +x build.sh'
-                sh './build.sh'
+                sh "./build.sh ${params.BRANCH_NAME}"
             }
         }
 
@@ -33,10 +38,10 @@ pipeline {
                     )]) {
                         sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
 
-                        if (env.BRANCH_NAME == 'dev') {
+                        if (params.BRANCH_NAME == 'dev') {
                             sh "docker tag webapp:latest $DEV_REGISTRY:$IMAGE_TAG"
                             sh "docker push $DEV_REGISTRY:$IMAGE_TAG"
-                        } else if (env.BRANCH_NAME == 'master') {
+                        } else if (params.BRANCH_NAME == 'master') {
                             sh "docker tag webapp:latest $PROD_REGISTRY:$IMAGE_TAG"
                             sh "docker push $PROD_REGISTRY:$IMAGE_TAG"
                         } else {
@@ -50,14 +55,14 @@ pipeline {
         stage('Deploy') {
             steps {
                 sh 'chmod +x deploy.sh'
-                sh './deploy.sh'
+                sh "./deploy.sh ${params.BRANCH_NAME}"
             }
         }
     }
 
     post {
         success {
-            echo "✅ Deployment completed successfully for branch ${BRANCH_NAME}!"
+            echo "✅ Deployment completed successfully for branch ${params.BRANCH_NAME}!"
         }
         failure {
             echo "❌ Pipeline failed. Check logs."
