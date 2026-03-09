@@ -10,7 +10,7 @@ pipeline {
         DEV_REGISTRY = "aarushisuba/dev"
         PROD_REGISTRY = "aarushisuba/prod"
         IMAGE_NAME = "webapp"
-        IMAGE_TAG = "latest"
+        IMAGE_TAG = "${BUILD_NUMBER}"
     }
 
     stages {
@@ -23,19 +23,19 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
+                script {
                 sh 'chmod +x build.sh'
                 sh "./build.sh ${params.BRANCH_NAME}"
             }
         }
-
+        }
         stage('Push to DockerHub') {
             steps {
                 script {
                     withCredentials([usernamePassword(
                         credentialsId: 'dockerhub-credentials',
                         usernameVariable: 'DOCKER_USER',
-                        passwordVariable: 'DOCKER_PASS'
-                    )]) {
+                        passwordVariable: 'DOCKER_PASS')]) {
                         sh "echo $DOCKER_PASS | docker login -u $DOCKER_USER --password-stdin"
 
                         if (params.BRANCH_NAME == 'dev') {
