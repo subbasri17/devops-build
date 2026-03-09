@@ -41,7 +41,7 @@ pipeline {
                         if (params.BRANCH_NAME == 'dev') {
                             sh "docker tag webapp:latest $DEV_REGISTRY:$IMAGE_TAG"
                             sh "docker push $DEV_REGISTRY:$IMAGE_TAG"
-                        } else if (params.BRANCH_NAME == 'master') {
+                        } else if (params.BRANCH_NAME == 'main') {
                             sh "docker tag webapp:latest $PROD_REGISTRY:$IMAGE_TAG"
                             sh "docker push $PROD_REGISTRY:$IMAGE_TAG"
                         } else {
