@@ -11,7 +11,7 @@ PROD_IMAGE="$DOCKER_USER/prod:$BRANCH"
 
 # Stop existing containers
 echo "Stopping old containers..."
-docker compose down || true
+docker-compose down || true
 
 # Select image based on branch
 if [ "$BRANCH" == "dev" ]; then
@@ -29,10 +29,10 @@ echo "Deploying image: $IMAGE"
 export IMAGE=$IMAGE
 
 # Pull latest image
-docker compose pull
+docker-compose pull
 
 # Start containers
-docker compose up -d
+docker-compose up -d
 
 echo "Deployment completed successfully!"
-docker compose ps
+docker-compose ps
